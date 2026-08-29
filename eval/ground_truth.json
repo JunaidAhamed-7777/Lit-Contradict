@@ -1,24 +1,20 @@
 {
-  "dataset_name": "Sample Contradiction Benchmark",
+  "dataset_name": "Lit-Contradict Sample Benchmark v2.0",
   "total_paper_pairs": 5,
-  "contradictions": [
-    {
-      "claim_a_id": "paper1-claim-0",
-      "claim_a_quote": "The experiment showed a 95% success rate",
-      "claim_b_id": "paper2-claim-0",
-      "claim_b_quote": "The experiment showed a 5% success rate",
-      "contradiction_type": "empirical",
-      "evidence_level": "high"
-    },
-    {
-      "claim_a_id": "paper3-claim-1",
-      "claim_a_quote": "Methodology A requires temperatures above 1000\u00b0C",
-      "claim_b_id": "paper4-claim-2",
-      "claim_b_quote": "Methodology A is effective below 500\u00b0C",
-      "contradiction_type": "methodological",
-      "evidence_level": "medium"
-    }
+  "paper_order": [
+    "paper1",
+    "paper2",
+    "paper3",
+    "paper4",
+    "paper5"
   ],
+  "paper_descriptions": {
+    "paper1": "12-week Drug X hypertension trial",
+    "paper2": "6-week Drug X mild hypertension study",
+    "paper3": "Catalytic converter temperature efficiency study",
+    "paper4": "Aftermarket catalyst light-off performance study",
+    "paper5": "Automated contradiction detection framework paper"
+  },
   "paper_pairs": [
     [
       "paper1",
@@ -27,6 +23,75 @@
     [
       "paper3",
       "paper4"
+    ],
+    [
+      "paper3",
+      "paper5"
+    ],
+    [
+      "paper5",
+      "paper1"
+    ],
+    [
+      "paper3",
+      "paper4"
     ]
+  ],
+  "contradictions": [
+    {
+      "id": "con-001",
+      "claim_a_id": "paper1-claim-0",
+      "claim_a_quote": "At week 12, the Drug X group showed a mean systolic blood pressure reduction of 28.5 mmHg (SD 8.2)",
+      "claim_b_id": "paper2-claim-0",
+      "claim_b_quote": "At week 6, the Drug X group showed a mean systolic blood pressure reduction of 8.7 mmHg (SD 5.3)",
+      "contradiction_type": "empirical",
+      "confidence_score": 0.92,
+      "explanation": "The 12-week Drug X trial showed statistically significant blood pressure reduction (p < 0.001) while the 6-week trial did not reach significance (p = 0.12), representing a contradictory empirical finding.",
+      "evidence_level": "high"
+    },
+    {
+      "id": "con-002",
+      "claim_a_id": "paper3-claim-0",
+      "claim_a_quote": "Converter A achieved peak efficiency (92% CO reduction) at 600\u00b0C",
+      "claim_b_id": "paper4-claim-0",
+      "claim_b_quote": "Formulation Z achieved light-off in 38 seconds",
+      "contradiction_type": "methodological",
+      "confidence_score": 0.78,
+      "explanation": "These claims involve different methodological approaches to evaluating catalyst/converter performance - one measuring efficiency at specific temperatures, the other measuring light-off time. The methodologies differ fundamentally in what is being measured and how.",
+      "evidence_level": "medium"
+    },
+    {
+      "id": "con-003",
+      "claim_a_id": "paper3-claim-1",
+      "claim_a_quote": "Below 400\u00b0C, all converters showed efficiency drops below 70%",
+      "claim_b_id": "paper4-claim-1",
+      "claim_b_quote": "Formulation Z maintained 50% efficiency for 5,000 miles, after which conversion efficiency dropped below 70%",
+      "contradiction_type": "empirical",
+      "confidence_score": 0.85,
+      "explanation": "Paper 3 claims efficiency drops below 70% below 400\u00b0C across all converters, while Paper 4 reports Formulation Z maintained 50% efficiency (which is below the 70% threshold) for 5,000 miles. Both claims reference the 70% efficiency threshold but from different contexts and time/temperature domains.",
+      "evidence_level": "high"
+    },
+    {
+      "id": "con-004",
+      "claim_a_id": "paper5-claim-0",
+      "claim_a_quote": "Our system achieved an F1 score of 0.76 on the empirical contradiction task",
+      "claim_b_id": "paper1-claim-1",
+      "claim_b_quote": "Approximately 65% of Drug X patients achieved target blood pressure (<140/90 mmHg) compared to 35% in the placebo group",
+      "contradiction_type": "theoretical",
+      "confidence_score": 0.65,
+      "explanation": "These claims represent different theoretical approaches to evaluating treatment efficacy - one presents machine learning system performance (F1 score), the other presents clinical trial response rates. The methodologies and metrics are fundamentally different, representing different theoretical frameworks for evaluation.",
+      "evidence_level": "low"
+    },
+    {
+      "id": "con-005",
+      "claim_a_id": "paper3-claim-2",
+      "claim_a_quote": "Converter A achieved peak efficiency (92% CO reduction) at 600\u00b0C",
+      "claim_b_id": "paper4-claim-2",
+      "claim_b_quote": "Formulation X achieved light-off in 45 seconds",
+      "contradiction_type": "methodological",
+      "confidence_score": 0.72,
+      "explanation": "These claims use different methodological metrics - catalytic converter efficiency (percentage reduction at specific temperature) versus catalyst light-off time (seconds to 50% efficiency). The different metrics and measurement protocols represent a methodological contradiction in evaluation approach.",
+      "evidence_level": "medium"
+    }
   ]
 }

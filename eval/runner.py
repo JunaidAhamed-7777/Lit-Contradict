@@ -139,6 +139,21 @@ class EvaluationRunner:
         Returns:
             Paper object or string placeholder
         """
+        # First, try to load from sample_data module papers
+        try:
+            import eval.sample_data as sd
+            paper_map = {
+                "paper1": sd.paper1,
+                "paper2": sd.paper2,
+                "paper3": sd.paper3,
+                "paper4": sd.paper4,
+                "paper5": sd.paper5,
+            }
+            if paper_id in paper_map:
+                return paper_map[paper_id]
+        except Exception:
+            pass
+
         # Try to load from data directory cache
         data_path = os.path.join("data", f"{paper_id}.json")
         if os.path.exists(data_path):
