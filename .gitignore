@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.dist/
+.build/
+/htmlcov/
+/venv/
+/env/.installed.cfg
+/.coverage
+
+# Data & Caching
+/data/*.pdf
+/data/*.json
+/.cache/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
