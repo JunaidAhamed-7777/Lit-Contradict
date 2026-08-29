@@ -63,6 +63,7 @@ class Claim(BaseModel):
     exact_quote: str
     section_name: str
     normalized_claim_text: str
+    confidence_score: float = Field(ge=0.0, le=1.0)
     methodology_context: Optional[str] = None
     claim_type: Optional[str] = None  # e.g., "empirical", "theoretical"
 
