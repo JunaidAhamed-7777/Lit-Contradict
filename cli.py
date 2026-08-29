@@ -1,8 +1,10 @@
 """CLI entry point for Lit-Contradiction."""
 
+import json
 from typing import List, Optional
 import typer
 from lit_contradict.core.schemas import Paper, Claim, Contradiction, EvaluationResult
+from eval.runner import EvaluationRunner
 
 app = typer.Typer()
 
@@ -47,11 +49,9 @@ def run(
 @app.command()
 def eval(
     ground_truth_path: str = typer.Argument(..., help="Path to ground-truth dataset"),
+    mode: str = typer.Option("baseline", help="Evaluation mode: 'baseline' or 'agent'"),
 ):
     """Run evaluation suite against ground-truth data."""
-    import json
-    from lit_contradict.core.schemas import EvaluationResult
-
     typer.echo(f"Loading ground-truth from: {ground_truth_path}")
     try:
         with open(ground_truth_path) as f:
@@ -61,16 +61,21 @@ def eval(
         typer.echo(f"Error loading ground-truth: {e}")
         raise typer.Exit(code=1)
 
-    result = EvaluationResult(
-        run_id="cli-run-001",
-        total_pairs_evaluated=data.get("total_pairs", 0),
-        total_contradictions_found=0,
-        precision=0.0,
-        recall=0.0,
-        f1_score=0.0,
-        execution_time_seconds=0.0,
-    )
-    typer.echo(f"Evaluation result: P={result.precision:.2f} R={result.recall:.2f} F1={result.f1_score:.2f}")
+    runner = EvaluationRunner(ground_truth_path)
+
+    if mode == "baseline":
+        typer.echo("Running baseline evaluation (single-prompt LLM)...")
+        result = runner.run_baseline()
+    elif mode == "agent":
+        typer.echo("Running agent-based evaluation...")
+        # Placeholder: In production, this would use actual agent outputs
+        result = runner.run_agent([])
+    else:
+        typer.echo(f"Unknown mode: {mode}. Use 'baseline' or 'agent'.")
+        raise typer.Exit(code=1)
+
+    typer.echo(f"Evaluation result: P={result.precision:.2f} R={result.recall:.2f} F1={result.f1_score:.2f} "
+               f"({result.execution_time_seconds}s)")
 
 
 if __name__ == "__main__":
