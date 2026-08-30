@@ -136,3 +136,17 @@ def eval(
 
 if __name__ == "__main__":
     app()
+
+
+@app.command()
+def serve():
+    """Start the FastAPI server for the Lit-Contradiction API."""
+    import subprocess
+    import sys
+
+    typer.echo("Starting Lit-Contradiction API server...")
+    typer.echo("Visit http://127.0.0.1:8000/docs for the interactive API docs")
+    subprocess.run(
+        [sys.executable, "-m", "lit_contradict.api.server"],
+        check=True,
+    )
