@@ -164,59 +164,62 @@
 <main class="flex-1 overflow-y-auto p-margin-desktop bg-[#090d16]" id="main-content">
 <!-- View: Run Detection -->
 <section class="view-section max-w-container-max mx-auto space-y-12" id="view-run-detection">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-<!-- Ingestion Panel -->
-<div class="lg:col-span-4 space-y-6">
-<div class="bg-[#0f172a] module-border p-6 space-y-6">
-<h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-widest border-b border-[#1e293b] pb-3">Ingestion Parameters</h2>
-<div class="space-y-4">
-<div class="space-y-2">
-<label class="font-technical-sm text-technical-sm text-on-surface-variant">Paper A (arXiv ID or Path)</label>
-<input class="w-full bg-transparent border-0 border-b border-[#1e293b] text-on-surface font-technical-sm py-2 px-1 focus:ring-0 focus:border-[#34d399] transition-colors outline-none placeholder:text-on-surface-variant/50" placeholder="e.g. 2305.18290" type="text"/>
-</div>
-<div class="flex justify-center py-2">
-<span class="material-symbols-outlined text-on-surface-variant">compare_arrows</span>
-</div>
-<div class="space-y-2">
-<label class="font-technical-sm text-technical-sm text-on-surface-variant">Paper B (arXiv ID or Path)</label>
-<input class="w-full bg-transparent border-0 border-b border-[#1e293b] text-on-surface font-technical-sm py-2 px-1 focus:ring-0 focus:border-[#34d399] transition-colors outline-none placeholder:text-on-surface-variant/50" placeholder="e.g. 2401.03462" type="text"/>
-</div>
-</div>
-<button id="btn-detect" onclick="runDetection()" class="w-full bg-[#34d399] text-black font-technical-sm text-technical-sm py-3 px-4 hover:bg-primary transition-colors flex justify-center items-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
-  <span class="material-symbols-outlined text-[18px]">radar</span>
-  Detect Contradictions
-</button>
-</div>
-<!-- Results Feed -->
-<div class="lg:col-span-8 space-y-6">
-<h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-widest border-b border-[#1e293b] pb-3 mb-6">Detection Results</h2>
-<!-- Contradiction Card 1 -->
-<div class="bg-[#0f172a] module-border p-6 space-y-4 card-hover transition-colors">
-<div class="flex justify-between items-start mb-2">
-<span class="font-technical-sm text-technical-sm px-2 py-1 border border-[#34d399] text-[#34d399] bg-[#34d399]/10">High Severity: Empirical</span>
-<span class="font-technical-sm text-technical-sm text-on-surface-variant">Confidence: 94%</span>
-</div>
-<div class="grid grid-cols-2 gap-6">
-<div>
-<h3 class="font-label-caps text-on-surface-variant mb-2">Paper A (Source)</h3>
-<p class="font-body-base text-on-surface text-sm p-4 bg-[#090d16] border border-[#1e293b] font-mono leading-relaxed">
-                                        "Our experiments demonstrate that applying X yields a 15% increase in throughput under heavy load."
-                                    </p>
-</div>
-<div>
-<h3 class="font-label-caps text-on-surface-variant mb-2">Paper B (Target)</h3>
-<p class="font-body-base text-on-surface text-sm p-4 bg-[#090d16] border border-[#1e293b] font-mono leading-relaxed">
-                                        "Contrary to prior claims, we find that method X strictly degrades performance when scaling beyond 10k concurrent requests."
-                                    </p>
-</div>
-</div>
-<div class="mt-4 pt-4 border-t border-[#1e293b]">
-<h3 class="font-label-caps text-on-surface-variant mb-2">Synthesis</h3>
-<p class="text-sm text-on-surface-variant leading-relaxed">Direct empirical clash regarding the scalability of Method X under load conditions. Paper A asserts positive scaling, whereas Paper B claims strict degradation at scale.</p>
-</div>
-</div>
-</div>
-</div>
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Left Column: Ingestion Panel -->
+    <div class="lg:col-span-4 bg-[#0f172a] module-border p-6 space-y-6">
+      <h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-widest border-b border-[#1e293b] pb-3">Ingestion Parameters</h2>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="font-technical-sm text-technical-sm text-on-surface-variant">Paper A (arXiv ID or Path)</label>
+          <input class="w-full bg-transparent border-0 border-b border-[#1e293b] text-on-surface font-technical-sm py-2 px-1 focus:ring-0 focus:border-[#34d399] transition-colors outline-none placeholder:text-on-surface-variant/50" placeholder="e.g. 2305.18290" type="text"/>
+        </div>
+        <div class="flex justify-center py-2">
+          <span class="material-symbols-outlined text-on-surface-variant">compare_arrows</span>
+        </div>
+        <div class="space-y-2">
+          <label class="font-technical-sm text-technical-sm text-on-surface-variant">Paper B (arXiv ID or Path)</label>
+          <input class="w-full bg-transparent border-0 border-b border-[#1e293b] text-on-surface font-technical-sm py-2 px-1 focus:ring-0 focus:border-[#34d399] transition-colors outline-none placeholder:text-on-surface-variant/50" placeholder="e.g. 2401.03462" type="text"/>
+        </div>
+      </div>
+      <button id="btn-detect" onclick="runDetection()" class="w-full bg-[#34d399] text-black font-technical-sm text-technical-sm py-3 px-4 hover:bg-primary transition-colors flex justify-center items-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span class="material-symbols-outlined text-[18px]">radar</span>
+        Detect Contradictions
+      </button>
+    </div>
+
+    <!-- Right Column: Detection Results -->
+    <div class="lg:col-span-8 space-y-6">
+      <h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-widest border-b border-[#1e293b] pb-3 mb-6">Detection Results</h2>
+      
+      <!-- Contradiction Card 1 -->
+      <div class="bg-[#0f172a] module-border p-6 space-y-4 card-hover transition-colors">
+        <div class="flex justify-between items-start mb-2">
+          <span class="font-technical-sm text-technical-sm px-2 py-1 border border-[#34d399] text-[#34d399] bg-[#34d399]/10">High Severity: Empirical</span>
+          <span class="font-technical-sm text-technical-sm text-on-surface-variant">Confidence: 94%</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-label-caps text-on-surface-variant mb-2">Paper A (Source)</h3>
+            <p class="font-body-base text-on-surface text-sm p-4 bg-[#090d16] border border-[#1e293b] font-mono leading-relaxed">
+              "Our experiments demonstrate that applying X yields a 15% increase in throughput under heavy load."
+            </p>
+          </div>
+          <div>
+            <h3 class="font-label-caps text-on-surface-variant mb-2">Paper B (Target)</h3>
+            <p class="font-body-base text-on-surface text-sm p-4 bg-[#090d16] border border-[#1e293b] font-mono leading-relaxed">
+              "Contrary to prior claims, we find that method X strictly degrades performance when scaling beyond 10k concurrent requests."
+            </p>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-[#1e293b]">
+          <h3 class="font-label-caps text-on-surface-variant mb-2">Synthesis</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Direct empirical clash regarding the scalability of Method X under load conditions. Paper A asserts positive scaling, whereas Paper B claims strict degradation at scale.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </section>
 <!-- View: Evaluation & Benchmarks -->
 <section class="view-section max-w-container-max mx-auto space-y-8 hide" id="view-evaluation">
