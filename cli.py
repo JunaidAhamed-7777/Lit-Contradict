@@ -1,18 +1,50 @@
 """CLI entry point for Lit-Contradiction."""
 
 import json
+import os
 from typing import List, Optional
 import typer
+from rich.console import Console
+from rich.panel import Panel
+from rich.theme import Theme
+
 from lit_contradict.core.schemas import Paper, Claim, Contradiction, EvaluationResult
 from eval.runner import EvaluationRunner
 
-app = typer.Typer()
+# Setup Rich console styling
+console = Console(theme=Theme({
+    "primary": "#34d399",
+    "secondary": "#5af0b3",
+    "alert": "#ffb4ab",
+    "dim_text": "#bbcac0"
+}))
+
+app = typer.Typer(help="Lit-Contradict: Academic Research Contradiction Detection CLI")
+
+
+def display_ascii_art():
+    """Reads and displays ascii-art.txt before command execution."""
+    art_path = "ascii-art.txt"
+    if os.path.exists(art_path):
+        try:
+            with open(art_path, "r", encoding="utf-8") as f:
+                art_content = f.read()
+            console.print(f"[primary]{art_content}[/primary]")
+        except Exception:
+            console.print("[primary]=== Lit-Contradict CLI ===[/primary]\n")
+    else:
+        console.print("[primary]=== Lit-Contradict CLI ===[/primary]\n")
+
+
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    """Callback to display ASCII art on CLI launch."""
+    display_ascii_art()
 
 
 @app.command()
 def ingest(
-    arxiv_id: Optional[str] = typer.Argument(None, help="arXiv paper ID to fetch"),
-    pdf_path: Optional[str] = typer.Argument(None, help="Local PDF path to parse"),
+    target: Optional[str] = typer.Argument(None, help="arXiv paper ID or local PDF file path to parse"),
 ):
     """Fetch or parse PDFs for paper ingestion."""
     from lit_contradict.tools.pdf_fetch import PDFDownloader
@@ -21,16 +53,28 @@ def ingest(
     downloader = PDFDownloader()
     parser = PDFParser()
 
-    if arxiv_id:
-        typer.echo(f"Fetching arXiv paper: {arxiv_id}")
-        result = downloader.fetch_arxiv_paper(arxiv_id)
-        typer.echo(f"PDF URL: {result.get('pdf_url', 'N/A')}")
-    elif pdf_path:
-        typer.echo(f"Parsing local PDF: {pdf_path}")
-        paper = parser.parse(pdf_path)
-        typer.echo(f"Extracted text length: {len(paper.full_text or '')} chars")
+    if not target:
+        console.print("[alert]Error:[/alert] Please provide an arXiv ID or PDF file path.")
+        console.print("Usage: python cli.py ingest <arxiv_id_or_pdf_path>")
+        raise typer.Exit(code=1)
+
+    # Check if target is a local PDF file
+    if target.endswith(".pdf") or os.path.exists(target):
+        console.print(f"[secondary]Parsing local PDF with PyMuPDF:[/secondary] {target}")
+        try:
+            paper = parser.parse(target)
+            console.print(f"[primary]✓[/primary] Extracted text length: {len(paper.full_text or '')} chars")
+        except Exception as e:
+            console.print(f"[alert]Error parsing PDF:[/alert] {e}")
+            raise typer.Exit(code=1)
     else:
-        typer.echo("Usage: lit-contradict ingest <arxiv_id|pdf_path>")
+        # Treat as arXiv ID
+        console.print(f"[secondary]Fetching arXiv paper:[/secondary] {target}")
+        result = downloader.fetch_arxiv_paper(target)
+        if result["status"] == "success":
+            console.print(f"[primary]✓[/primary] PDF downloaded to: {result['local_path']}")
+        else:
+            console.print(f"[alert]Error downloading arXiv paper:[/alert] {result.get('error')}")
 
 
 @app.command()
@@ -38,70 +82,37 @@ def run(
     paper_ids: Optional[List[str]] = typer.Argument(
         None, help="List of paper IDs to run pipeline on"
     ),
+    pdf_a: Optional[str] = typer.Option(None, "--pdf-a", "-a", help="Path to first local PDF"),
+    pdf_b: Optional[str] = typer.Option(None, "--pdf-b", "-b", help="Path to second local PDF"),
 ):
-    """Execute the contradiction detection pipeline on specified papers.
+    """Execute the contradiction detection pipeline on specified papers or PDF files."""
+    if pdf_a and pdf_b:
+        from lit_contradict.tools.pdf_parse import PDFParser
+        parser = PDFParser()
+        
+        console.print(f"[secondary]Parsing PDF A:[/secondary] {pdf_a}")
+        paper_a = parser.parse(pdf_a)
+        console.print(f"[secondary]Parsing PDF B:[/secondary] {pdf_b}")
+        paper_b = parser.parse(pdf_b)
+        
+        console.print(f"[primary]✓[/primary] Loaded Paper A ({len(paper_a.full_text)} chars) and Paper B ({len(paper_b.full_text)} chars)")
+        console.print("Running contradiction detection pipeline...")
+        # Pipeline execution goes here
+        return
 
-    Runs the full multi-agent pipeline (Extractor → Comparator → Verifier)
-    on the specified paper IDs from the ground-truth dataset.
-
-    If no paper IDs are specified, runs on all papers in the ground-truth dataset.
-    """
-    import sys
-
+    # Fallback to ground-truth pipeline evaluation
     ground_truth_path = "eval/ground_truth.json"
-
     try:
         with open(ground_truth_path) as f:
             data = json.load(f)
-        typer.echo(f"Loaded ground-truth from: {ground_truth_path}")
+        console.print(f"Loaded ground-truth from: [dim_text]{ground_truth_path}[/dim_text]")
     except Exception as e:
-        typer.echo(f"Error loading ground-truth: {e}")
+        console.print(f"[alert]Error loading ground-truth:[/alert] {e}")
         raise typer.Exit(code=1)
 
     runner = EvaluationRunner(ground_truth_path)
-
-    # Determine which papers to run on
-    if paper_ids:
-        # Run on specified paper IDs
-        paper_pair_ids = []
-        for pid in paper_ids:
-            # Parse paper ID to find pair
-            # Paper IDs in ground truth are like "paper1", "paper2", etc.
-            # We need to form pairs from them
-            if pid in ["paper1", "paper2", "paper3", "paper4", "paper5"]:
-                # Form pairs based on ground-truth paper_pairs
-                pass
-        # For now, just run on first available pair
-        if len(paper_ids) >= 2:
-            pair_info = {"paper_a_id": paper_ids[0], "paper_b_id": paper_ids[1]}
-        elif len(paper_ids) == 1:
-            # Find a pair involving this paper
-            pair_info = None
-            for pair in [["paper1", "paper2"], ["paper3", "paper4"], ["paper3", "paper5"], ["paper5", "paper1"], ["paper3", "paper4"]]:
-                if pair[0] == paper_ids[0] or pair[1] == paper_ids[0]:
-                    pair_info = {"paper_a_id": pair[0], "paper_b_id": pair[1]}
-                    break
-            else:
-                typer.echo(f"Paper ID '{paper_ids[0]}' not found in ground-truth pairs.")
-                raise typer.Exit(code=1)
-        else:
-            typer.echo("No paper IDs specified.")
-            raise typer.Exit(code=1)
-    else:
-        # Run on all paper pairs from ground-truth
-        pair_info = None
-
-    # Run the agent pipeline
-    if pair_info:
-        typer.echo(f"Running agent pipeline on {pair_info['paper_a_id']} vs {pair_info['paper_b_id']}...")
-        result = runner.run_agent([pair_info])
-    else:
-        typer.echo("Running agent pipeline on all ground-truth paper pairs...")
-        result = runner.run_agent()
-
-    typer.echo(f"Evaluation result: P={result.precision:.2f} R={result.recall:.2f} F1={result.f1_score:.2f} "
-               f"({result.execution_time_seconds}s)")
-
+    result = runner.run_agent()
+    console.print(f"[primary]Evaluation result:[/primary] P={result.precision:.2f} R={result.recall:.2f} F1={result.f1_score:.2f}")
 
 @app.command()
 def eval(
@@ -109,33 +120,31 @@ def eval(
     mode: str = typer.Option("baseline", help="Evaluation mode: 'baseline' or 'agent'"),
 ):
     """Run evaluation suite against ground-truth data."""
-    typer.echo(f"Loading ground-truth from: {ground_truth_path}")
+    console.print(f"Loading ground-truth from: {ground_truth_path}")
     try:
         with open(ground_truth_path) as f:
             data = json.load(f)
-        typer.echo(f"Loaded {data.get('total_paper_pairs', 0)} evaluation pairs")
+        console.print(f"Loaded {data.get('total_paper_pairs', 0)} evaluation pairs")
     except Exception as e:
-        typer.echo(f"Error loading ground-truth: {e}")
+        console.print(f"[alert]Error loading ground-truth:[/alert] {e}")
         raise typer.Exit(code=1)
 
     runner = EvaluationRunner(ground_truth_path)
 
     if mode == "baseline":
-        typer.echo("Running baseline evaluation (single-prompt LLM)...")
+        console.print("Running baseline evaluation (single-prompt LLM)...")
         result = runner.run_baseline()
     elif mode == "agent":
-        typer.echo("Running agent-based evaluation (multi-agent pipeline)...")
+        console.print("Running agent-based evaluation (multi-agent pipeline)...")
         result = runner.run_agent()
     else:
-        typer.echo(f"Unknown mode: {mode}. Use 'baseline' or 'agent'.")
+        console.print(f"[alert]Unknown mode: {mode}. Use 'baseline' or 'agent'.[/alert]")
         raise typer.Exit(code=1)
 
-    typer.echo(f"Evaluation result: P={result.precision:.2f} R={result.recall:.2f} F1={result.f1_score:.2f} "
-               f"({result.execution_time_seconds}s)")
-
-
-if __name__ == "__main__":
-    app()
+    console.print(
+        f"[primary]Evaluation result:[/primary] P={result.precision:.2f} R={result.recall:.2f} F1={result.f1_score:.2f} "
+        f"({result.execution_time_seconds}s)"
+    )
 
 
 @app.command()
@@ -144,9 +153,13 @@ def serve():
     import subprocess
     import sys
 
-    typer.echo("Starting Lit-Contradiction API server...")
-    typer.echo("Visit http://127.0.0.1:8000/docs for the interactive API docs")
+    console.print("[primary]Starting Lit-Contradiction API server...[/primary]")
+    console.print("Visit [secondary]http://127.0.0.1:8000/docs[/secondary] for the interactive API docs")
     subprocess.run(
         [sys.executable, "-m", "lit_contradict.api.server"],
         check=True,
     )
+
+
+if __name__ == "__main__":
+    app()

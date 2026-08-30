@@ -1,60 +1,34 @@
-"""PDF fetching and downloading modules."""
+"""PDF Downloader module for fetching papers from arXiv or URLs."""
 
-import httpx
-from typing import Optional
-
-
-ARXIV_API_BASE = "http://export.arxiv.org/api/query"
-
+import os
+import urllib.request
+from typing import Dict, Any
 
 class PDFDownloader:
-    """Downloads PDFs from arXiv or local paths."""
+    """Downloader for arXiv and web-hosted PDF files."""
+    
+    def fetch_arxiv_paper(self, arxiv_id: str, download_dir: str = "./data") -> Dict[str, Any]:
+        """Fetches PDF URL and downloads PDF given an arXiv ID (e.g., '2305.18290')."""
+        os.makedirs(download_dir, exist_ok=True)
+        
+        # Clean ID in case user passed full URL or prefix
+        clean_id = arxiv_id.replace("arxiv:", "").replace("abs/", "").replace("pdf/", "")
+        pdf_url = f"https://arxiv.org/pdf/{clean_id}.pdf"
+        output_path = os.path.join(download_dir, f"{clean_id}.pdf")
 
-    def __init__(self, timeout: int = 30, max_size_mb: int = 50):
-        self.timeout = timeout
-        self.max_size_bytes = max_size_mb * 1024 * 1024
-        self.client = httpx.Client(timeout=self.timeout)
-
-    def fetch_arxiv_paper(self, arxiv_id: str) -> dict:
-        """Fetch paper metadata and PDF from arXiv.
-
-        Args:
-            arxiv_id: arXiv identifier (e.g., "2101.00001").
-
-        Returns:
-            A dict with paper metadata and PDF download info.
-        """
-        search_url = f"{ARXIV_API_BASE}"
-        params = {
-            "search_query": f"id:{arxiv_id}",
-            "search": "search",
-            "start": "0",
-            "max_results": "1",
-        }
-        response = self.client.get(search_url, params=params)
-        response.raise_for_status()
-        # Parse the arXiv XML response to extract PDF link and metadata
-        # This is a simplified placeholder
-        return {
-            "arxiv_id": arxiv_id,
-            "pdf_url": f"https://arxiv.org/pdf/{arxiv_id}.pdf",
-            "metadata": {"status": "fetched"},
-        }
-
-    def download_pdf(self, pdf_url: str) -> bytes:
-        """Download PDF content from a URL.
-
-        Args:
-            pdf_url: Direct PDF URL.
-
-        Returns:
-            PDF content as bytes.
-        """
-        response = self.client.get(pdf_url)
-        response.raise_for_status()
-        content = response.content
-        if len(content) > self.max_size_bytes:
-            raise ValueError(
-                f"PDF exceeds maximum size of {self.max_size_mb}MB"
-            )
-        return content
+        try:
+            urllib.request.urlretrieve(pdf_url, output_path)
+            return {
+                "arxiv_id": clean_id,
+                "pdf_url": pdf_url,
+                "local_path": output_path,
+                "status": "success"
+            }
+        except Exception as e:
+            return {
+                "arxiv_id": clean_id,
+                "pdf_url": pdf_url,
+                "local_path": None,
+                "status": "error",
+                "error": str(e)
+            }
