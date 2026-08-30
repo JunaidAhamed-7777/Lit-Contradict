@@ -148,8 +148,9 @@
 </div>
 <div class="flex items-center gap-6">
 <div class="flex items-center gap-2 px-3 py-1.5 module-border bg-[#0f172a]">
-<div class="w-2 h-2 bg-[#34d399]"></div>
-<span class="font-technical-sm text-technical-sm text-on-surface">API: http://127.0.0.1:8000</span>
+<div class="flex items-center gap-2 px-3 py-1.5 module-border bg-[#0f172a]">
+  <div id="status-indicator" class="w-2 h-2 bg-red-500"></div>
+  <span id="api-endpoint-label" class="font-technical-sm text-technical-sm text-on-surface">Backend Not Running</span>
 </div>
 <div class="flex gap-4 text-on-surface-variant">
 <button class="hover:text-primary transition-colors scale-95 transition-transform duration-75"><span class="material-symbols-outlined">settings</span></button>
