@@ -325,5 +325,63 @@
             });
             document.getElementById(`view-${viewId}`).classList.remove('hide');
         }
+
+                // --- Backend Configuration & Health Check ---
+        const DEFAULT_PORT = '8000';
+        const BACKEND_URL = `${window.location.protocol}//${window.location.hostname}:${DEFAULT_PORT}`;
+
+        let isBackendOnline = false;
+
+        async function checkBackendHealth() {
+        const statusIndicator = document.getElementById('status-indicator');
+        const apiLabel = document.getElementById('api-endpoint-label');
+        const btnDetect = document.getElementById('btn-detect');
+        const btnEval = document.getElementById('btn-eval');
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/health`, { method: 'GET' });
+            if (response.ok) {
+            isBackendOnline = true;
+            statusIndicator.className = 'w-2 h-2 bg-[#34d399] animate-pulse';
+            apiLabel.textContent = `API: ${BACKEND_URL}`;
+            
+            if (btnDetect) btnDetect.disabled = false;
+            if (btnEval) btnEval.disabled = false;
+            return;
+            }
+        } catch (err) {
+            // Connection refused / Network error
+        }
+
+        // Backend is Down
+        isBackendOnline = false;
+        statusIndicator.className = 'w-2 h-2 bg-red-500';
+        apiLabel.textContent = 'Backend Not Running';
+
+        if (btnDetect) btnDetect.disabled = true;
+        if (btnEval) btnEval.disabled = true;
+        }
+
+        // Intercept API actions if offline
+        async function runDetection() {
+        if (!isBackendOnline) {
+            alert('Backend is currently offline. Action halted.');
+            return;
+        }
+        // Implement POST /api/run fetch logic here
+        }
+
+        async function fetchEvaluation() {
+        if (!isBackendOnline) {
+            alert('Backend is currently offline. Action halted.');
+            return;
+        }
+        // Implement GET /api/eval fetch logic here
+        }
+
+        // Initial check & interval polling (every 5 seconds)
+        checkBackendHealth();
+        setInterval(checkBackendHealth, 5000);
+
     </script>
 </body></html>
