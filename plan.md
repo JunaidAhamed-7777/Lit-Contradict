@@ -34,3 +34,51 @@
 - Phase 4: Hackathon Deliverables & Benchmarking
     - Run evaluation suite to generate precision/recall metrics (Baseline vs. Agent System).  
     - Generate changelog.md, reproducibility.md, and record the 5-minute video.  
+
+
+                      ┌────────────────────────────────┐
+                      │    Lit-Contradict Core Engine  │
+                      │  (Ingestion, Embeddings, NLI)  │
+                      └───────────────┬────────────────┘
+                                      │
+               ┌──────────────────────┴──────────────────────┐
+               ▼                                             ▼
+    ┌──────────────────────┐                      ┌──────────────────────┐
+    │     CLI Module       │                      │     FastAPI Web      │
+    │  (Typer / Rich UI)   │                      │  (Serves Dashboard)  │
+    └──────────────────────┘                      └──────────────────────┘
+
+Key CLI Capabilities & Features
+Rich Terminal UI:
+
+Uses rich for formatted tables, color-coded severity badges, syntax-highlighted side-by-side paper comparisons, and interactive loading spinners.
+
+Flexible Input Drivers:
+
+Supports arXiv IDs (2305.18290), local PDF files (/path/to/paper.pdf), or direct raw text pairs.
+
+Pipeable Output Formats:
+
+Supports human-readable terminal rendering, plain --json output (for bash scripting and CI/CD pipelines), or --markdown reporting.
+
+Offline Local Execution:
+
+Can run directly against local Python modules without needing the FastAPI server running.
+
+Proposed CLI Command Structure
+Quick Contradiction Check:
+
+Bash
+lit-contradict run --paper-a 2305.18290 --paper-b 2401.03462
+Ingest & Index Documents:
+
+Bash
+lit-contradict ingest ./papers/ --db ./vector_store
+Run Evaluation Benchmarks:
+
+Bash
+lit-contradict eval --dataset qasper --limit 100
+Export Interactive Summary:
+
+Bash
+lit-contradict run --paper-a paper1.pdf --paper-b paper2.pdf --output report.json
