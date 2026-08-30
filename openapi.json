@@ -1,0 +1,92 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lit-Contradict API",
+    "description": "API service for identifying and evaluating contradictions across academic research papers.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8000",
+      "description": "Local Development Server"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Checks system operational status and underlying model readiness.",
+        "responses": {
+          "200": {
+            "description": "System operational",
+            "content": {
+              "application/json": {
+                "example": { "status": "online", "model": "ready" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest": {
+      "post": {
+        "summary": "Ingest Documents",
+        "description": "Queue arXiv IDs or PDF paths for parsing and vector extraction.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paper_id": { "type": "string", "example": "2305.18290" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document queued successfully"
+          }
+        }
+      }
+    },
+    "/api/run": {
+      "post": {
+        "summary": "Execute Pipeline",
+        "description": "Runs contradiction analysis comparing Paper A against Paper B.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paper_a": { "type": "string", "example": "2305.18290" },
+                  "paper_b": { "type": "string", "example": "2401.03462" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Detection completed successfully"
+          }
+        }
+      }
+    },
+    "/api/eval": {
+      "get": {
+        "summary": "Fetch Benchmarks",
+        "description": "Retrieves real-time precision, recall, and F1 performance scores.",
+        "responses": {
+          "200": {
+            "description": "Metrics retrieved successfully"
+          }
+        }
+      }
+    }
+  }
+}
