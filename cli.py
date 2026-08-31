@@ -11,6 +11,14 @@ from rich.theme import Theme
 from lit_contradict.core.schemas import Paper, Claim, Contradiction, EvaluationResult
 from eval.runner import EvaluationRunner
 
+import sys
+from pathlib import Path
+
+# Ensure root directory is added to sys.path
+ROOT_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 # Setup Rich console styling
 console = Console(theme=Theme({
     "primary": "#34d399",
