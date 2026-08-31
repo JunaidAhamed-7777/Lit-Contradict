@@ -3,7 +3,7 @@
 ### If you are still curious, check the documentation down below.
 
 
-```txt
+```text
                                                                          ,   ,
                                                                         /////|
  _     _ _          _____             _                 _ _      _     ///// |
@@ -201,6 +201,11 @@ Lit-Contradict/
 ```
 
 ---
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/bdadff04-1dd3-43f3-8087-7aedbd7ab9df" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/34027dba-75f6-4425-8dff-682079e3df1a" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/47b9d612-5da6-4c79-a7ab-4e562121ed8a" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a81413ed-8f15-40ea-b583-7a256bc33f80" />
+
 
 ## License
 
